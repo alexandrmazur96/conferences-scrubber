@@ -1,24 +1,31 @@
 plugins {
     id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
+mainClassName = 'Main'
 
 group 'conferences-scrubber'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
+shadowJar {
+    mainClassName = 'Main'
+    classifier = 'fat'
+}
+
 repositories {
     mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
-dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.google.firebase:firebase-admin:6.8.1'
-    implementation files('src/main/java/libs/json-20180813.jar')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation name:'json-20180813'
 }
 
 task runApp(type: JavaExec) {
@@ -30,5 +37,8 @@ task runApp(type: JavaExec) {
 jar {
     manifest {
         attributes 'Main-Class': 'Main'
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
