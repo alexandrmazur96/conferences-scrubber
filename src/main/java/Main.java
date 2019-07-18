@@ -17,15 +17,13 @@ public class Main {
             year = Integer.parseInt(args[0]);
         }
 
-        RequestWrapper confRequest = new RequestWrapper();
-        JsonParser jsonParser = new JsonParser();
-
         InputStream stream = Main.class.getResourceAsStream("/.env");
         EnvConfig envConfigUtil = new EnvConfig(stream);
         Map<String, String> config = envConfigUtil.getConfig();
+        RequestWrapper confRequest = new RequestWrapper();
+        JsonParser jsonParser = new JsonParser();
 
         String android = confRequest.makeRequest(year, "android");
-
         ArrayList<Conference> conferenceList = jsonParser.getConferenceList(android, year);
 
         String credentialsPath = config.get("FIREBASE_CREDENTIALS");

@@ -2,10 +2,7 @@ package utils.firebase;
 
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
@@ -50,7 +47,8 @@ public class Conference {
 
         for (Map<String, Object> confMap : pairForProcess.getSecond()) {
             System.out.println("Update: " + confMap.toString());
-            this.conferenceCollection.document().update(confMap);
+            DocumentReference documentReference = this.conferenceCollection.document((String) confMap.get("id"));
+            documentReference.update(confMap);
         }
 
         System.out.println("End update firebase collection...");
@@ -67,6 +65,7 @@ public class Conference {
             if (dbConferenceMap.containsKey(conference.hashCode())) {
                 entities.Conference comparable = dbConferenceMap.get(conference.hashCode());
                 if (!comparable.equals(conference)) {
+                    conference.setId(comparable.getFirebaseId());
                     forUpdate.add(Maker.buildConferenceMapObject(conference));
                 }
             } else {

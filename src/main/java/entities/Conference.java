@@ -93,6 +93,10 @@ public class Conference {
         return cfpEndDate;
     }
 
+    public void setId(String firebaseId) {
+        this.firebaseId = firebaseId;
+    }
+
     public String toString() {
 
         return "[" + System.lineSeparator() +
@@ -126,11 +130,15 @@ public class Conference {
                 this.startDate.equals(conf.getStartDate()) &&
                 this.endDate.equals(conf.getEndDate()) &&
                 this.country.equals(conf.getCountry()) &&
-                this.city.equals(conf.getCity());
+                this.city.equals(conf.getCity()) &&
+                this.url.equals(conf.getUrl()) &&
+                this.cfpUrl.equals(conf.getCfpUrl()) &&
+                this.cfpStartDate.equals(conf.getCfpStartDate()) &&
+                this.cfpEndDate.equals(conf.getCfpEndDate());
     }
 
     public int hashCode() {
-        byte[] bytes = this.toString().getBytes();
+        byte[] bytes = (this.getName() + this.getYear() + this.getCity() + this.getCountry()).getBytes();
         CRC32 checksum = new CRC32();
         checksum.update(bytes, 0, bytes.length);
 
