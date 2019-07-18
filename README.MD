@@ -1,0 +1,1 @@
+##Scrub conference json array from https://github.com/tech-conferences/confs.tech

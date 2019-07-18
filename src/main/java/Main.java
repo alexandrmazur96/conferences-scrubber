@@ -1,15 +1,16 @@
 import entities.Conference;
+import utils.EnvConfig;
 import utils.http.RequestWrapper;
 import utils.json.JsonParser;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.concurrent.ExecutionException;
+import java.util.Map;
 
 public class Main {
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
+    public static void main(String[] args) throws Exception {
         int year = Calendar.getInstance().get(Calendar.YEAR);
 
         if (args.length > 0) {
@@ -19,18 +20,19 @@ public class Main {
         RequestWrapper confRequest = new RequestWrapper();
         JsonParser jsonParser = new JsonParser();
 
-        try {
-            String android = confRequest.makeRequest(year, "android");
+        InputStream stream = Main.class.getResourceAsStream("/.env");
+        EnvConfig envConfigUtil = new EnvConfig(stream);
+        Map<String, String> config = envConfigUtil.getConfig();
 
-            ArrayList<Conference> conferenceList = jsonParser.getConferenceList(android, year);
+        String android = confRequest.makeRequest(year, "android");
 
-            String credPath = "/Users/alexandrmazur/IdeaProjects/conferences-scrubber/src/main/java/credentials/firebase_credentials.json";
-            String dbUrl = "https://disco-abacus-219713.firebaseio.com";
+        ArrayList<Conference> conferenceList = jsonParser.getConferenceList(android, year);
 
-            utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credPath, dbUrl);
-            firebaseConference.processConferences(year, conferenceList);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String credentialsPath = config.get("FIREBASE_CREDENTIALS");
+        String databaseUrl = config.get("DATABASE_URL");
+
+        utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl);
+
+        firebaseConference.processConferences(year, conferenceList);
     }
 }

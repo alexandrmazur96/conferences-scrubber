@@ -2,7 +2,7 @@ package entities;
 
 import java.util.zip.CRC32;
 
-public class Conference implements Comparable<Conference> {
+public class Conference {
     private String name;
     private String url;
     private String startDate;
@@ -109,21 +109,24 @@ public class Conference implements Comparable<Conference> {
                 "]";
     }
 
-    @Override
-    public int compareTo(Conference conf) {
-        /* todo: need to check this condition */
-        if (
-                this.name.equals(conf.getName()) &&
-                        this.year == conf.getYear() &&
-                        this.startDate.equals(conf.getStartDate()) &&
-                        this.endDate.equals(conf.getEndDate()) &&
-                        this.country.equals(conf.getCountry()) &&
-                        this.city.equals(conf.getCity())
-        ) {
-            return 0;
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
         }
 
-        return (this.year > conf.getYear() && this.startDate.compareTo(conf.getStartDate()) == 1) ? 1 : -1;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Conference conf = (Conference) o;
+
+        return this.name.equals(conf.getName()) &&
+                this.year == conf.getYear() &&
+                this.startDate.equals(conf.getStartDate()) &&
+                this.endDate.equals(conf.getEndDate()) &&
+                this.country.equals(conf.getCountry()) &&
+                this.city.equals(conf.getCity());
     }
 
     public int hashCode() {
