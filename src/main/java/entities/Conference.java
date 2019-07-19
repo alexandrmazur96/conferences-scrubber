@@ -16,6 +16,9 @@ public class Conference {
     private int year;
     private String firebaseId;
 
+    /**
+     * Create conference entity from firebase db (firebaseId required).
+     */
     public Conference(String name, String url, String startDate, String endDate, String city, String country, String twitter, String cfpUrl, String cfpStartDate, String cfpEndDate, int year, String firebaseId) {
         this.name = name;
         this.url = url;
@@ -31,6 +34,9 @@ public class Conference {
         this.firebaseId = firebaseId;
     }
 
+    /**
+     * Create conference entity which not presented in firebase DB yet.
+     */
     public Conference(String name, String url, String startDate, String endDate, String city, String country, String twitter, String cfpUrl, String cfpStartDate, String cfpEndDate, int year) {
         this.name = name;
         this.url = url;

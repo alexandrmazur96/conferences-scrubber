@@ -25,35 +25,44 @@ public class Conference {
 
     private CollectionReference conferenceCollection;
 
-    public Conference(String credentialsPath, String dbUrl) {
+    /**
+     * @param credentialsPath path to Google Firebase credentials, stored in JSON usually.
+     * @param dbUrl Google Firebase URL.
+     * @param collectionName Name of collection where stored conferences.
+     * @throws IOException when credentialsPath not found, see init().
+     */
+    public Conference(String credentialsPath, String dbUrl, String collectionName) throws IOException {
         this.credentialsPath = credentialsPath;
         this.dbUrl = dbUrl;
-        this.init();
+        this.init(collectionName);
     }
 
+    /**
+     * Insert of update conferences records.
+     * @param year processing year
+     * @param conferenceList list of conferences, which should be processed.
+     */
     public void processConferences(int year, ArrayList<entities.Conference> conferenceList) throws ExecutionException, InterruptedException {
         Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> pairForProcess = this.getForProcess(year, conferenceList);
 
-        System.out.println("Start insert into firebase collection...");
-
         for (Map<String, Object> confMap : pairForProcess.getFirst()) {
-            System.out.println("Insert: " + confMap.toString());
             this.conferenceCollection.add(confMap);
         }
 
-        System.out.println("End insert into firebase collection");
-
-        System.out.println("Start update firebase collection...");
-
         for (Map<String, Object> confMap : pairForProcess.getSecond()) {
-            System.out.println("Update: " + confMap.toString());
             DocumentReference documentReference = this.conferenceCollection.document((String) confMap.get("id"));
             documentReference.update(confMap);
         }
-
-        System.out.println("End update firebase collection...");
     }
 
+    /**
+     * Make pair of collection, where stored conferences for update & for insert.
+     *
+     * One method because we can make pair in one pass of cycle and avoid O(2N) computing.
+     * @param year need for querying documents.
+     * @param conferencesList conferences collection, created from JSON.
+     * @return pair of collection - first for insert new conferences and second for update existing conferences.
+     */
     private Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> getForProcess(int year, List<entities.Conference> conferencesList)
             throws ExecutionException, InterruptedException {
 
@@ -76,6 +85,11 @@ public class Conference {
         return new Pair<>(forInsert, forUpdate);
     }
 
+    /**
+     * Go to Firebase and get documents from conference collection.
+     * @param year from what we start querying conferences from Firebase.
+     * @return collection of conference documents from Firebase.
+     */
     private List<QueryDocumentSnapshot> queryDocumentsSnapshot(int year) throws ExecutionException, InterruptedException {
         ApiFuture<QuerySnapshot> query = conferenceCollection.whereEqualTo("year", year).get();
         QuerySnapshot querySnapshot = query.get();
@@ -83,7 +97,11 @@ public class Conference {
         return querySnapshot.getDocuments();
     }
 
-    private void init() {
+    /**
+     * Prepare objects for work with Firebase.
+     * @throws IOException when FileInputStream can't find credentials JSON.
+     */
+    private void init(String collectionName) throws IOException {
         try {
             FileInputStream serviceAccount = new FileInputStream(this.credentialsPath);
 
@@ -94,9 +112,10 @@ public class Conference {
             FirebaseApp.initializeApp(options);
 
             Firestore db = FirestoreClient.getFirestore();
-            this.conferenceCollection = db.collection("conference");
+            this.conferenceCollection = db.collection(collectionName);
         } catch (IOException ex) {
             ex.printStackTrace();
+            throw ex;
         }
     }
 }

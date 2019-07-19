@@ -1,4 +1,5 @@
 import entities.Conference;
+import org.jetbrains.annotations.NotNull;
 import utils.EnvConfig;
 import utils.http.RequestWrapper;
 import utils.json.JsonParser;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(@NotNull String[] args) throws Exception {
         int year = Calendar.getInstance().get(Calendar.YEAR);
 
         if (args.length > 0) {
@@ -28,8 +29,9 @@ public class Main {
 
         String credentialsPath = config.get("FIREBASE_CREDENTIALS");
         String databaseUrl = config.get("DATABASE_URL");
+        String collectionName = "conference";
 
-        utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl);
+        utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
 
         firebaseConference.processConferences(year, conferenceList);
     }

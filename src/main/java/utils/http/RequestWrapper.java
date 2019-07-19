@@ -6,11 +6,21 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Wrap URL request code.
+ */
 public class RequestWrapper {
     private final String url = "https://raw.githubusercontent.com/tech-conferences/conference-data/master/conferences/";
 
     private static HttpURLConnection httpURLConnection;
 
+    /**
+     *
+     * @param year
+     * @param platform
+     * @return
+     * @throws IOException
+     */
     public String makeRequest(int year, String platform) throws IOException {
         try {
 
