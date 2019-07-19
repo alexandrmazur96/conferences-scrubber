@@ -8,7 +8,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class JsonParser {
-    public ArrayList<Conference> getConferenceList(String json, int year) {
+
+    /**
+     * Go over JSON array of conferences and create conferences object list
+     * @param json JSON-array with conference object representation
+     * @param year the year when the conference will or will be
+     * @return collection of conference objects.
+     */
+    public ArrayList<Conference> makeConferencesList(String json, int year) {
         JSONArray conferenceList = new JSONArray(json);
         ArrayList<Conference> list = new ArrayList<>();
 
@@ -19,6 +26,12 @@ public class JsonParser {
         return list;
     }
 
+    /**
+     * Make conference object from JSON.
+     * @param json conference representation in JSON format
+     * @param year the year when the conference will or will be
+     * @return Conference object
+     */
     private Conference getConference(Object json, int year) {
         JSONObject jsonObject = new JSONObject(json.toString());
         

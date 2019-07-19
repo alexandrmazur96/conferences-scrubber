@@ -1,7 +1,6 @@
 import entities.Conference;
-import org.jetbrains.annotations.NotNull;
 import utils.EnvConfig;
-import utils.http.RequestWrapper;
+import utils.http.ConferenceGrabber;
 import utils.json.JsonParser;
 
 import java.io.InputStream;
@@ -11,7 +10,12 @@ import java.util.Map;
 
 public class Main {
 
-    public static void main(@NotNull String[] args) throws Exception {
+    /**
+     * Project - https://github.com/tech-conferences/conference-data
+     */
+    private static String url = "https://raw.githubusercontent.com/tech-conferences/conference-data/master/conferences/";
+
+    public static void main(String[] args) throws Exception {
         int year = Calendar.getInstance().get(Calendar.YEAR);
 
         if (args.length > 0) {
@@ -21,15 +25,15 @@ public class Main {
         InputStream stream = Main.class.getResourceAsStream("/.env");
         EnvConfig envConfigUtil = new EnvConfig(stream);
         Map<String, String> config = envConfigUtil.getConfig();
-        RequestWrapper confRequest = new RequestWrapper();
+        ConferenceGrabber confRequest = new ConferenceGrabber(url);
         JsonParser jsonParser = new JsonParser();
 
-        String android = confRequest.makeRequest(year, "android");
-        ArrayList<Conference> conferenceList = jsonParser.getConferenceList(android, year);
+        String android = confRequest.grabConferences(year, "android");
+        ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(android, year);
 
         String credentialsPath = config.get("FIREBASE_CREDENTIALS");
         String databaseUrl = config.get("DATABASE_URL");
-        String collectionName = "conference";
+        String collectionName = config.get("COLLECTION_NAME");
 
         utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
 

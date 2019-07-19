@@ -12,10 +12,19 @@ public class EnvConfig {
         this.stream = stream;
     }
 
+    /**
+     * Return project configuration
+     * @return config
+     */
     public HashMap<String, String> getConfig() throws Exception {
         return this.parseEnv();
     }
 
+    /**
+     * Parse given stream of .env file to config.
+     * @return configuration hash map
+     * @throws Exception when we can't load .env or .env is malformed
+     */
     private HashMap<String, String> parseEnv() throws Exception {
         if (stream == null) {
             throw new Exception("Can't load .env file");

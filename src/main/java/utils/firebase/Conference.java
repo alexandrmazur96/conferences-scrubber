@@ -6,7 +6,6 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import utils.Maker;
 import utils.Pair;
 import utils.Transformer;
 
@@ -75,10 +74,10 @@ public class Conference {
                 entities.Conference comparable = dbConferenceMap.get(conference.hashCode());
                 if (!comparable.equals(conference)) {
                     conference.setId(comparable.getFirebaseId());
-                    forUpdate.add(Maker.buildConferenceMapObject(conference));
+                    forUpdate.add(Transformer.transformConferenceToMap(conference));
                 }
             } else {
-                forInsert.add(Maker.buildConferenceMapObject(conference));
+                forInsert.add(Transformer.transformConferenceToMap(conference));
             }
         }
 

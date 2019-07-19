@@ -6,22 +6,23 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Wrap URL request code.
- */
-public class RequestWrapper {
-    private final String url = "https://raw.githubusercontent.com/tech-conferences/conference-data/master/conferences/";
+public class ConferenceGrabber {
+    private String url;
 
     private static HttpURLConnection httpURLConnection;
 
+    public ConferenceGrabber(String url) {
+        this.url = url;
+    }
+
     /**
-     *
-     * @param year
-     * @param platform
-     * @return
-     * @throws IOException
+     * Make request to given URL to grab conferences list matched given year and platform
+     * @param year for what year you want to grab conferences
+     * @param platform conference platform, e.g., android, php, java, etc
+     * @return conferences in JSON format
+     * @throws IOException if request failed and we can't read stream.
      */
-    public String makeRequest(int year, String platform) throws IOException {
+    public String grabConferences(int year, String platform) throws IOException {
         try {
 
             String scrubUrl = this.url + '/' + year + '/' + platform + ".json";

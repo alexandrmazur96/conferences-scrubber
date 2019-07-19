@@ -1,5 +1,10 @@
 package utils;
 
+/**
+ * Tuple for two values
+ * @param <T>
+ * @param <U>
+ */
 public class Pair<T, U> {
 
     private final T first;
