@@ -26,8 +26,8 @@ public class Conference {
 
     /**
      * @param credentialsPath path to Google Firebase credentials, stored in JSON usually.
-     * @param dbUrl Google Firebase URL.
-     * @param collectionName Name of collection where stored conferences.
+     * @param dbUrl           Google Firebase URL.
+     * @param collectionName  Name of collection where stored conferences.
      * @throws IOException when credentialsPath not found, see init().
      */
     public Conference(String credentialsPath, String dbUrl, String collectionName) throws IOException {
@@ -38,11 +38,12 @@ public class Conference {
 
     /**
      * Insert of update conferences records.
-     * @param year processing year
+     *
+     * @param year           processing year
      * @param conferenceList list of conferences, which should be processed.
      */
-    public void processConferences(int year, ArrayList<entities.Conference> conferenceList) throws ExecutionException, InterruptedException {
-        Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> pairForProcess = this.getForProcess(year, conferenceList);
+    public void processConferences(int year, String conferenceType, ArrayList<entities.Conference> conferenceList) throws ExecutionException, InterruptedException {
+        Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> pairForProcess = this.getForProcess(year, conferenceType, conferenceList);
 
         for (Map<String, Object> confMap : pairForProcess.getFirst()) {
             this.conferenceCollection.add(confMap);
@@ -56,16 +57,17 @@ public class Conference {
 
     /**
      * Make pair of collection, where stored conferences for update & for insert.
-     *
+     * <p>
      * One method because we can make pair in one pass of cycle and avoid O(2N) computing.
-     * @param year need for querying documents.
+     *
+     * @param year            need for querying documents.
      * @param conferencesList conferences collection, created from JSON.
      * @return pair of collection - first for insert new conferences and second for update existing conferences.
      */
-    private Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> getForProcess(int year, List<entities.Conference> conferencesList)
+    private Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> getForProcess(int year, String conferenceType, List<entities.Conference> conferencesList)
             throws ExecutionException, InterruptedException {
 
-        HashMap<Integer, entities.Conference> dbConferenceMap = Transformer.transformListQueryDocumentSnapshotToConferenceMap(this.queryDocumentsSnapshot(year));
+        HashMap<Integer, entities.Conference> dbConferenceMap = Transformer.transformListQueryDocumentSnapshotToConferenceMap(this.queryDocumentsSnapshot(year, conferenceType));
         ArrayList<Map<String, Object>> forInsert = new ArrayList<>();
         ArrayList<Map<String, Object>> forUpdate = new ArrayList<>();
 
@@ -86,11 +88,12 @@ public class Conference {
 
     /**
      * Go to Firebase and get documents from conference collection.
+     *
      * @param year from what we start querying conferences from Firebase.
      * @return collection of conference documents from Firebase.
      */
-    private List<QueryDocumentSnapshot> queryDocumentsSnapshot(int year) throws ExecutionException, InterruptedException {
-        ApiFuture<QuerySnapshot> query = conferenceCollection.whereEqualTo("year", year).get();
+    private List<QueryDocumentSnapshot> queryDocumentsSnapshot(int year, String conferenceType) throws ExecutionException, InterruptedException {
+        ApiFuture<QuerySnapshot> query = conferenceCollection.whereEqualTo("year", year).whereEqualTo("conferenceType", conferenceType).get();
         QuerySnapshot querySnapshot = query.get();
 
         return querySnapshot.getDocuments();
@@ -98,17 +101,22 @@ public class Conference {
 
     /**
      * Prepare objects for work with Firebase.
+     *
      * @throws IOException when FileInputStream can't find credentials JSON.
      */
     private void init(String collectionName) throws IOException {
         try {
-            FileInputStream serviceAccount = new FileInputStream(this.credentialsPath);
+            if (!dbInited) {
+                FileInputStream serviceAccount = new FileInputStream(this.credentialsPath);
 
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl(this.dbUrl)
-                    .build();
-            FirebaseApp.initializeApp(options);
+                FirebaseOptions options = new FirebaseOptions.Builder()
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .setDatabaseUrl(this.dbUrl)
+                        .build();
+                FirebaseApp.initializeApp(options);
+
+                dbInited = true;
+            }
 
             Firestore db = FirestoreClient.getFirestore();
             this.conferenceCollection = db.collection(collectionName);
@@ -117,4 +125,6 @@ public class Conference {
             throw ex;
         }
     }
+
+    private static boolean dbInited = false;
 }

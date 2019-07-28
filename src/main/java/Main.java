@@ -1,10 +1,6 @@
-import entities.Conference;
 import utils.EnvConfig;
-import utils.http.ConferenceGrabber;
-import utils.json.JsonParser;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Map;
 
@@ -13,30 +9,51 @@ public class Main {
     /**
      * Project - https://github.com/tech-conferences/conference-data
      */
-    private static String url = "https://raw.githubusercontent.com/tech-conferences/conference-data/master/conferences/";
+    private static String url = "";
 
     public static void main(String[] args) throws Exception {
-        int year = Calendar.getInstance().get(Calendar.YEAR);
+        int year = Main.handleArgs(args);
+        Map<String, String> config = Main.initiateConfig();
 
-        if (args.length > 0) {
-            year = Integer.parseInt(args[0]);
+        Application app = new Application(config);
+
+        if (year == 0) {
+            app.setIsNeedHandleAllYears(true);
+        } else {
+            app.setYear(year);
         }
+        app.executeAsync();
+//        app.execute();
+    }
 
+    /**
+     * Parse .env project file
+     *
+     * @return configuration hash map
+     * @throws Exception usually when .env file is not present in project.
+     */
+    private static Map<String, String> initiateConfig() throws Exception {
         InputStream stream = Main.class.getResourceAsStream("/.env");
         EnvConfig envConfigUtil = new EnvConfig(stream);
-        Map<String, String> config = envConfigUtil.getConfig();
-        ConferenceGrabber confRequest = new ConferenceGrabber(url);
-        JsonParser jsonParser = new JsonParser();
 
-        String android = confRequest.grabConferences(year, "android");
-        ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(android, year);
+        return envConfigUtil.getConfig();
+    }
 
-        String credentialsPath = config.get("FIREBASE_CREDENTIALS");
-        String databaseUrl = config.get("DATABASE_URL");
-        String collectionName = config.get("COLLECTION_NAME");
+    /**
+     * Handle arguments passed into script.
+     *
+     * @param args passed arguments
+     * @return handled year
+     */
+    private static int handleArgs(String[] args) {
+        if (args.length == 0) {
+            return Calendar.getInstance().get(Calendar.YEAR);
+        }
 
-        utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
+        if (args[0].equals("all")) {
+            return 0;
+        }
 
-        firebaseConference.processConferences(year, conferenceList);
+        return Integer.parseInt(args[0]);
     }
 }
