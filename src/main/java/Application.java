@@ -63,9 +63,12 @@ public class Application {
             for (String conferenceType : conferenceTypes) {
                 Future<String> future = conferenceGrabber.grabConferencesAsync(year, conferenceType);
                 String conferencesJson = future.get();
+
                 if (conferencesJson.equals("")) {
                     continue;
                 }
+
+                conferencesJson = conferencesJson.replaceAll("–", "-");
                 ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(conferencesJson, year);
                 utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
                 firebaseConference.processConferences(year, conferenceType, conferenceList);
@@ -84,6 +87,12 @@ public class Application {
             conferenceGrabber.setUrl(url);
             for (String conferenceType : conferenceTypes) {
                 String conferencesJson = conferenceGrabber.grabConferences(year, conferenceType);
+
+                if (conferencesJson.equals("")) {
+                    continue;
+                }
+
+                conferencesJson = conferencesJson.replaceAll("–", "-");
                 ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(conferencesJson, year);
                 utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
                 firebaseConference.processConferences(year, conferenceType, conferenceList);
