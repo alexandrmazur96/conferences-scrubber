@@ -42,8 +42,11 @@ public class ConferenceGrabber {
             }
 
             System.out.println("Grabbed [ " + year + ", " + platform + "]");
+            System.out.println("Grabbed content length: " + content.length());
 
-            completableFuture.complete(content.toString());
+            String conferencesJson = this.purifyConferences(content.toString());
+
+            completableFuture.complete(conferencesJson);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -83,9 +86,23 @@ public class ConferenceGrabber {
                 }
             }
 
-            return content.toString();
+            return this.purifyConferences(content.toString());
         } finally {
             httpURLConnection.disconnect();
         }
+    }
+
+    /**
+     * Clear conferences JSON from bad symbols.
+     * e.g., [–]
+     * @param conferences JSON with conferences.
+     * @return purified JSON with conferences.
+     */
+    private String purifyConferences(String conferences) {
+        if (conferences.equals("")) {
+            return conferences;
+        }
+
+        return conferences.replaceAll("–", "-");
     }
 }

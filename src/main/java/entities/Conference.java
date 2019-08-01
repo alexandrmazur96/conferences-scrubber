@@ -1,5 +1,7 @@
 package entities;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.util.zip.CRC32;
 
 public class Conference {
@@ -15,6 +17,7 @@ public class Conference {
     private String cfpEndDate;
     private int year;
     private String firebaseId;
+    private String conferenceDigest;
 
     /**
      * Create conference entity from firebase db (firebaseId required).
@@ -32,6 +35,7 @@ public class Conference {
         this.cfpEndDate = cfpEndDate;
         this.year = year;
         this.firebaseId = firebaseId;
+        this.makeMd5Digest();
     }
 
     /**
@@ -49,6 +53,7 @@ public class Conference {
         this.cfpStartDate = cfpStartDate;
         this.cfpEndDate = cfpEndDate;
         this.year = year;
+        this.makeMd5Digest();
     }
 
     public String getFirebaseId() {
@@ -97,6 +102,10 @@ public class Conference {
 
     public String getCfpEndDate() {
         return cfpEndDate;
+    }
+
+    public String getConferenceDigest() {
+        return conferenceDigest;
     }
 
     public void setId(String firebaseId) {
@@ -149,5 +158,9 @@ public class Conference {
         checksum.update(bytes, 0, bytes.length);
 
         return (int) checksum.getValue();
+    }
+
+    private void makeMd5Digest() {
+        this.conferenceDigest = DigestUtils.md5Hex(this.toString());
     }
 }
