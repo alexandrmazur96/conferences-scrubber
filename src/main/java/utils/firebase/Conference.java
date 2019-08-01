@@ -76,10 +76,11 @@ public class Conference {
         for (entities.Conference conference : conferencesList) {
             if (dbConferenceMap.containsKey(conference.hashCode())) {
                 entities.Conference comparable = dbConferenceMap.get(conference.hashCode());
-                if (!comparable.equals(conference)) {
-                    conference.setId(comparable.getFirebaseId());
-                    forUpdate.add(Transformer.transformConferenceToMap(conference));
+                if (comparable.equals(conference)) {
+                    continue;
                 }
+                conference.setId(comparable.getFirebaseId());
+                forUpdate.add(Transformer.transformConferenceToMap(conference));
             } else {
                 forInsert.add(Transformer.transformConferenceToMap(conference));
             }
@@ -95,7 +96,7 @@ public class Conference {
      * @return collection of conference documents from Firebase.
      */
     private List<QueryDocumentSnapshot> queryDocumentsSnapshot(int year, String conferenceType) throws ExecutionException, InterruptedException {
-        ApiFuture<QuerySnapshot> query = conferenceCollection.whereEqualTo("year", year).get();
+        ApiFuture<QuerySnapshot> query = conferenceCollection.whereEqualTo("year", year).whereArrayContains("conferenceTypes", conferenceType).get();
         QuerySnapshot querySnapshot = query.get();
 
         return querySnapshot.getDocuments();

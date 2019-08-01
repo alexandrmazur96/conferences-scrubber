@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class JsonParser {
 
@@ -15,12 +16,12 @@ public class JsonParser {
      * @param year the year when the conference will or will be
      * @return collection of conference objects.
      */
-    public ArrayList<Conference> makeConferencesList(String json, int year) {
+    public ArrayList<Conference> makeConferencesList(String json, int year, String conferenceType) {
         JSONArray conferenceList = new JSONArray(json);
         ArrayList<Conference> list = new ArrayList<>();
 
         for (Object conference : conferenceList) {
-            list.add(this.getConference(conference, year));
+            list.add(this.getConference(conference, year, conferenceType));
         }
 
         return list;
@@ -32,7 +33,7 @@ public class JsonParser {
      * @param year the year when the conference will or will be
      * @return Conference object
      */
-    private Conference getConference(Object json, int year) {
+    private Conference getConference(Object json, int year, String conferenceType) {
         JSONObject jsonObject = new JSONObject(json.toString());
         
         try {
@@ -46,8 +47,10 @@ public class JsonParser {
             String cfpUrl = jsonObject.isNull("cfpUrl") ? "" : jsonObject.getString("cfpUrl");
             String cfpStartDate = jsonObject.isNull("cfpStartDate") ? "" : jsonObject.getString("cfpStartDate");
             String cfpEndDate = jsonObject.isNull("cfpEndDate") ? "" : jsonObject.getString("cfpEndDate");
+            List<String> conferenceTypes = new ArrayList<String>();
+            conferenceTypes.add(conferenceType);
 
-            return new Conference(name, url, startDate, endDate, city, country, twitter, cfpUrl, cfpStartDate, cfpEndDate, year);
+            return new Conference(name, url, startDate, endDate, city, country, twitter, cfpUrl, cfpStartDate, cfpEndDate, year, conferenceTypes);
         } catch (JSONException exception) {
             System.out.println(exception.getMessage());
         }

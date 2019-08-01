@@ -2,6 +2,7 @@ package entities;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.List;
 import java.util.zip.CRC32;
 
 public class Conference {
@@ -15,14 +16,16 @@ public class Conference {
     private String cfpUrl;
     private String cfpStartDate;
     private String cfpEndDate;
+
     private int year;
     private String firebaseId;
     private String conferenceDigest;
+    private List<String> conferenceTypes;
 
     /**
      * Create conference entity from firebase db (firebaseId required).
      */
-    public Conference(String name, String url, String startDate, String endDate, String city, String country, String twitter, String cfpUrl, String cfpStartDate, String cfpEndDate, int year, String firebaseId) {
+    public Conference(String name, String url, String startDate, String endDate, String city, String country, String twitter, String cfpUrl, String cfpStartDate, String cfpEndDate, int year, String firebaseId, List<String> conferenceTypes) {
         this.name = name;
         this.url = url;
         this.startDate = startDate;
@@ -35,13 +38,14 @@ public class Conference {
         this.cfpEndDate = cfpEndDate;
         this.year = year;
         this.firebaseId = firebaseId;
+        this.conferenceTypes = conferenceTypes;
         this.makeMd5Digest();
     }
 
     /**
      * Create conference entity which not presented in firebase DB yet.
      */
-    public Conference(String name, String url, String startDate, String endDate, String city, String country, String twitter, String cfpUrl, String cfpStartDate, String cfpEndDate, int year) {
+    public Conference(String name, String url, String startDate, String endDate, String city, String country, String twitter, String cfpUrl, String cfpStartDate, String cfpEndDate, int year, List<String> conferenceTypes) {
         this.name = name;
         this.url = url;
         this.startDate = startDate;
@@ -53,6 +57,7 @@ public class Conference {
         this.cfpStartDate = cfpStartDate;
         this.cfpEndDate = cfpEndDate;
         this.year = year;
+        this.conferenceTypes = conferenceTypes;
         this.makeMd5Digest();
     }
 
@@ -106,6 +111,10 @@ public class Conference {
 
     public String getConferenceDigest() {
         return conferenceDigest;
+    }
+
+    public List<String> getConferenceTypes() {
+        return conferenceTypes;
     }
 
     public void setId(String firebaseId) {

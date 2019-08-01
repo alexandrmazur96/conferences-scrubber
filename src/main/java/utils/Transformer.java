@@ -50,6 +50,7 @@ public class Transformer {
         confMap.put("cfpEndDate", conf.getCfpEndDate());
         confMap.put("year", conf.getYear());
         confMap.put("digest", conf.getConferenceDigest());
+        confMap.put("conferenceTypes", conf.getConferenceTypes());
 
         return confMap;
     }

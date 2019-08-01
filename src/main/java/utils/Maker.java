@@ -2,9 +2,7 @@ package utils;
 
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class Maker {
 
@@ -51,7 +49,8 @@ public class Maker {
         String cfpUrl = document.getString("cfpUrl") == null ? "" : document.getString("cfpUrl");
         String cfpStartDate = document.getString("cfpStartDate") == null ? "" : document.getString("cfpStartDate");
         String cfpEndDate = document.getString("cfpEndDate") == null ? "" : document.getString("cfpEndDate");
+        List<String> conferenceTypes = (ArrayList<String>) document.get("conferenceTypes");
 
-        return new entities.Conference(name, url, startDate, endDate, city, country, twitter, cfpUrl, cfpStartDate, cfpEndDate, year, document.getId());
+        return new entities.Conference(name, url, startDate, endDate, city, country, twitter, cfpUrl, cfpStartDate, cfpEndDate, year, document.getId(), conferenceTypes);
     }
 }
