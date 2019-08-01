@@ -19,6 +19,8 @@ import java.util.concurrent.ExecutionException;
 
 public class Conference {
 
+    private static boolean dbInitiated = false;
+
     private String credentialsPath;
     private String dbUrl;
 
@@ -106,7 +108,7 @@ public class Conference {
      */
     private void init(String collectionName) throws IOException {
         try {
-            if (!dbInited) {
+            if (!dbInitiated) {
                 FileInputStream serviceAccount = new FileInputStream(this.credentialsPath);
 
                 FirebaseOptions options = new FirebaseOptions.Builder()
@@ -115,7 +117,7 @@ public class Conference {
                         .build();
                 FirebaseApp.initializeApp(options);
 
-                dbInited = true;
+                dbInitiated = true;
             }
 
             Firestore db = FirestoreClient.getFirestore();
@@ -125,6 +127,4 @@ public class Conference {
             throw ex;
         }
     }
-
-    private static boolean dbInited = false;
 }

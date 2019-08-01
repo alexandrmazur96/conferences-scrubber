@@ -49,6 +49,7 @@ public class Transformer {
         confMap.put("cfpStartDate", conf.getCfpStartDate());
         confMap.put("cfpEndDate", conf.getCfpEndDate());
         confMap.put("year", conf.getYear());
+        confMap.put("digest", conf.getConferenceDigest());
 
         return confMap;
     }
