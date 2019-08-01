@@ -95,7 +95,7 @@ public class Conference {
      * @return collection of conference documents from Firebase.
      */
     private List<QueryDocumentSnapshot> queryDocumentsSnapshot(int year, String conferenceType) throws ExecutionException, InterruptedException {
-        ApiFuture<QuerySnapshot> query = conferenceCollection.whereEqualTo("year", year).whereEqualTo("conferenceType", conferenceType).get();
+        ApiFuture<QuerySnapshot> query = conferenceCollection.whereEqualTo("year", year).get();
         QuerySnapshot querySnapshot = query.get();
 
         return querySnapshot.getDocuments();
