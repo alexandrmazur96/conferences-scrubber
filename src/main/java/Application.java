@@ -4,13 +4,15 @@ import utils.json.JsonParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class Application {
 
-    private int year;
+    private int handleYear;
     private boolean isNeedHandleAllYears;
     private Map<String, String> configuration;
 
@@ -47,30 +49,33 @@ public class Application {
             "ux"
     };
 
-    public Application(Map<String, String> configuration) {
+    Application(Map<String, String> configuration) {
         this.configuration = configuration;
     }
 
-    public void executeAsync() throws ExecutionException, InterruptedException, IOException {
+    void executeAsync() throws ExecutionException, InterruptedException, IOException {
         ConferenceGrabber conferenceGrabber = new ConferenceGrabber();
         JsonParser jsonParser = new JsonParser();
         String credentialsPath = configuration.get("FIREBASE_CREDENTIALS");
         String databaseUrl = configuration.get("DATABASE_URL");
         String collectionName = configuration.get("COLLECTION_NAME");
+        int[] years = this.getYears();
 
-        for (String url : urls) {
-            conferenceGrabber.setUrl(url);
-            for (String conferenceType : conferenceTypes) {
-                Future<String> future = conferenceGrabber.grabConferencesAsync(year, conferenceType);
-                String conferencesJson = future.get();
+        for (int year : years) {
+            for (String url : urls) {
+                conferenceGrabber.setUrl(url);
+                for (String conferenceType : conferenceTypes) {
+                    Future<String> future = conferenceGrabber.grabConferencesAsync(year, conferenceType);
+                    String conferencesJson = future.get();
 
-                if (conferencesJson.equals("")) {
-                    continue;
+                    if (conferencesJson.equals("")) {
+                        continue;
+                    }
+
+                    ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(conferencesJson, year, conferenceType);
+                    utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
+                    firebaseConference.processConferences(year, conferenceType, conferenceList);
                 }
-
-                ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(conferencesJson, year, conferenceType);
-                utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
-                firebaseConference.processConferences(year, conferenceType, conferenceList);
             }
         }
     }
@@ -85,25 +90,38 @@ public class Application {
         for (String url : urls) {
             conferenceGrabber.setUrl(url);
             for (String conferenceType : conferenceTypes) {
-                String conferencesJson = conferenceGrabber.grabConferences(year, conferenceType);
+                String conferencesJson = conferenceGrabber.grabConferences(handleYear, conferenceType);
 
                 if (conferencesJson.equals("")) {
                     continue;
                 }
 
                 conferencesJson = conferencesJson.replaceAll("–", "-");
-                ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(conferencesJson, year, conferenceType);
+                ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(conferencesJson, handleYear, conferenceType);
                 utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
-                firebaseConference.processConferences(year, conferenceType, conferenceList);
+                firebaseConference.processConferences(handleYear, conferenceType, conferenceList);
             }
         }
     }
 
-    public void setYear(int year) {
-        this.year = year;
+    void setHandleYear(int handleYear) {
+        this.handleYear = handleYear;
     }
 
-    public void setIsNeedHandleAllYears(boolean flag) {
-        this.isNeedHandleAllYears = flag;
+    private int[] getYears() {
+        ArrayList<Integer> years = new ArrayList<>();
+        if (isNeedHandleAllYears) {
+            for (int i = 2014; i <= Calendar.getInstance().get(Calendar.YEAR) + 2; i++) {
+                years.add(i);
+            }
+
+            return years.stream().filter(Objects::nonNull).mapToInt(t -> t).toArray();
+        } else {
+            return new int[]{handleYear};
+        }
+    }
+
+    void setIsNeedHandleAllYears() {
+        this.isNeedHandleAllYears = true;
     }
 }

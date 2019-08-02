@@ -4,12 +4,10 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Map;
 
+/**
+ * Project - https://github.com/tech-conferences/conference-data
+ */
 public class Main {
-
-    /**
-     * Project - https://github.com/tech-conferences/conference-data
-     */
-    private static String url = "";
 
     public static void main(String[] args) throws Exception {
         int year = Main.handleArgs(args);
@@ -18,9 +16,9 @@ public class Main {
         Application app = new Application(config);
 
         if (year == 0) {
-            app.setIsNeedHandleAllYears(true);
+            app.setIsNeedHandleAllYears();
         } else {
-            app.setYear(year);
+            app.setHandleYear(year);
         }
         app.executeAsync();
 //        app.execute();
