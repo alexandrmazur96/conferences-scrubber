@@ -44,8 +44,8 @@ public class Conference {
      * @param year           processing year
      * @param conferenceList list of conferences, which should be processed.
      */
-    public void processConferences(int year, String conferenceType, ArrayList<entities.Conference> conferenceList) throws ExecutionException, InterruptedException {
-        Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> pairForProcess = this.getForProcess(year, conferenceType, conferenceList);
+    public void processConferences(int year, ArrayList<entities.Conference> conferenceList) throws ExecutionException, InterruptedException {
+        Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> pairForProcess = this.getForProcess(year, conferenceList);
 
         for (Map<String, Object> confMap : pairForProcess.getFirst()) {
             this.conferenceCollection.add(confMap);
@@ -66,10 +66,10 @@ public class Conference {
      * @param conferencesList conferences collection, created from JSON.
      * @return pair of collection - first for insert new conferences and second for update existing conferences.
      */
-    private Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> getForProcess(int year, String conferenceType, List<entities.Conference> conferencesList)
+    private Pair<ArrayList<Map<String, Object>>, ArrayList<Map<String, Object>>> getForProcess(int year, List<entities.Conference> conferencesList)
             throws ExecutionException, InterruptedException {
 
-        HashMap<Integer, entities.Conference> dbConferenceMap = Transformer.transformListQueryDocumentSnapshotToConferenceMap(this.queryDocumentsSnapshot(year, conferenceType));
+        HashMap<Integer, entities.Conference> dbConferenceMap = Transformer.transformListQueryDocumentSnapshotToConferenceMap(this.queryDocumentsSnapshot(year));
         ArrayList<Map<String, Object>> forInsert = new ArrayList<>();
         ArrayList<Map<String, Object>> forUpdate = new ArrayList<>();
 
@@ -77,7 +77,21 @@ public class Conference {
             if (dbConferenceMap.containsKey(conference.hashCode())) {
                 entities.Conference comparable = dbConferenceMap.get(conference.hashCode());
                 if (comparable.equals(conference)) {
-                    continue;
+                    boolean alreadyIn = false;
+                    for (String conferenceType : comparable.getConferenceTypes()) {
+                        if (conferenceType.equals(conference.getConferenceTypes().get(0))) {
+                            alreadyIn = true;
+                            break;
+                        }
+                    }
+
+                    if (alreadyIn) {
+                        continue;
+                    }
+
+                    String tmp = conference.getConferenceTypes().get(0);
+                    conference.setConferenceTypes(comparable.getConferenceTypes());
+                    conference.addConferenceType(tmp);
                 }
                 conference.setId(comparable.getFirebaseId());
                 forUpdate.add(Transformer.transformConferenceToMap(conference));
@@ -95,8 +109,8 @@ public class Conference {
      * @param year from what we start querying conferences from Firebase.
      * @return collection of conference documents from Firebase.
      */
-    private List<QueryDocumentSnapshot> queryDocumentsSnapshot(int year, String conferenceType) throws ExecutionException, InterruptedException {
-        ApiFuture<QuerySnapshot> query = conferenceCollection.whereEqualTo("year", year).whereArrayContains("conferenceTypes", conferenceType).get();
+    private List<QueryDocumentSnapshot> queryDocumentsSnapshot(int year) throws ExecutionException, InterruptedException {
+        ApiFuture<QuerySnapshot> query = conferenceCollection.whereEqualTo("year", year).get();
         QuerySnapshot querySnapshot = query.get();
 
         return querySnapshot.getDocuments();

@@ -74,7 +74,7 @@ class Application {
 
                     ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(conferencesJson, year, conferenceType);
                     utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
-                    firebaseConference.processConferences(year, conferenceType, conferenceList);
+                    firebaseConference.processConferences(year, conferenceList);
                 }
             }
         }

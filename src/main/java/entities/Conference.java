@@ -61,6 +61,14 @@ public class Conference {
         this.makeMd5Digest();
     }
 
+    public void addConferenceType(String conferenceType) {
+        this.conferenceTypes.add(conferenceType);
+    }
+
+    public void setConferenceTypes(List<String> conferenceTypes) {
+        this.conferenceTypes = conferenceTypes;
+    }
+
     public String getFirebaseId() {
         return firebaseId;
     }
@@ -149,16 +157,7 @@ public class Conference {
 
         Conference conf = (Conference) o;
 
-        return this.name.equals(conf.getName()) &&
-                this.year == conf.getYear() &&
-                this.startDate.equals(conf.getStartDate()) &&
-                this.endDate.equals(conf.getEndDate()) &&
-                this.country.equals(conf.getCountry()) &&
-                this.city.equals(conf.getCity()) &&
-                this.url.equals(conf.getUrl()) &&
-                this.cfpUrl.equals(conf.getCfpUrl()) &&
-                this.cfpStartDate.equals(conf.getCfpStartDate()) &&
-                this.cfpEndDate.equals(conf.getCfpEndDate());
+        return this.conferenceDigest.equals(conf.getConferenceDigest());
     }
 
     public int hashCode() {
