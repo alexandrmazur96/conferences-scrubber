@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class Application {
+class Application {
 
     private int handleYear;
     private boolean isNeedHandleAllYears;
@@ -76,30 +76,6 @@ public class Application {
                     utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
                     firebaseConference.processConferences(year, conferenceType, conferenceList);
                 }
-            }
-        }
-    }
-
-    public void execute() throws Exception {
-        ConferenceGrabber conferenceGrabber = new ConferenceGrabber();
-        JsonParser jsonParser = new JsonParser();
-        String credentialsPath = configuration.get("FIREBASE_CREDENTIALS");
-        String databaseUrl = configuration.get("DATABASE_URL");
-        String collectionName = configuration.get("COLLECTION_NAME");
-
-        for (String url : urls) {
-            conferenceGrabber.setUrl(url);
-            for (String conferenceType : conferenceTypes) {
-                String conferencesJson = conferenceGrabber.grabConferences(handleYear, conferenceType);
-
-                if (conferencesJson.equals("")) {
-                    continue;
-                }
-
-                conferencesJson = conferencesJson.replaceAll("–", "-");
-                ArrayList<Conference> conferenceList = jsonParser.makeConferencesList(conferencesJson, handleYear, conferenceType);
-                utils.firebase.Conference firebaseConference = new utils.firebase.Conference(credentialsPath, databaseUrl, collectionName);
-                firebaseConference.processConferences(handleYear, conferenceType, conferenceList);
             }
         }
     }

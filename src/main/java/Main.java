@@ -21,7 +21,6 @@ public class Main {
             app.setHandleYear(year);
         }
         app.executeAsync();
-//        app.execute();
     }
 
     /**
